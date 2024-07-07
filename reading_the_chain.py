@@ -59,25 +59,27 @@ def is_ordered_block(w3, block_num):
 
 	# TODO YOUR CODE HERE
 
-	block = w3.eth.get_block(block_num)
-	base_fee_per_gas = block.get('baseFeePerGas', 0)
+  block = w3.eth.get_block(block_num)
+  base_fee_per_gas = block.get('baseFeePerGas', 0)
 
-	def check_priority_fee(tx):
-		if 'maxPriorityFeePerGas' in tx and 'maxFeePerGas' in tx:
-			return min(tx['maxPriorityFeePerGas'], tx['maxFeePerGas'] - base_fee_per_gas)
-		else:
-			return tx['gasPrice'] - base_fee_per_gas
-	
-	transactions = block['transactions']
-	priority_fees = []
+  def check_priority_fee(tx):
+    if 'maxPriorityFeePerGas' in tx and 'maxFeePerGas' in tx:
+      return min(tx['maxPriorityFeePerGas'], tx['maxFeePerGas'] - base_fee_per_gas)
+    else:
+      return tx['gasPrice'] - base_fee_per_gas
+
+  transactions = block['transactions']
+  priority_fees = []
+
+
 
   for tx_hash in transactions:
     tx = w3.eth.get_transaction(tx_hash)
     priority_fees.append(check_priority_fee(tx))
-    
-	ordered = all(priority_fees[i] >= priority_fees[i+1] for i in range(len(priority_fees) - 1))
 
-	return ordered
+  ordered = all(priority_fees[i] >= priority_fees[i+1] for i in range(len(priority_fees) - 1))
+
+  return ordered
 
 
 def get_contract_values(contract, admin_address, owner_address):
