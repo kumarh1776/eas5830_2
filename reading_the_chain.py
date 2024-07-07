@@ -69,8 +69,12 @@ def is_ordered_block(w3, block_num):
 			return tx['gasPrice'] - base_fee_per_gas
 	
 	transactions = block['transactions']
-	priority_fees = [check_priority_fee(tx) for tx in transactions]
+	priority_fees = []
 
+  for tx_hash in transactions:
+    tx = w3.eth.get_transaction(tx_hash)
+    priority_fees.append(check_priority_fee(tx))
+    
 	ordered = all(priority_fees[i] >= priority_fees[i+1] for i in range(len(priority_fees) - 1))
 
 	return ordered
