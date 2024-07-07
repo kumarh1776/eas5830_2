@@ -59,21 +59,21 @@ def is_ordered_block(w3, block_num):
 
 	# TODO YOUR CODE HERE
 
-		block = w3.eth.get_block(block_num)
-		base_fee_per_gas = block.get('baseFeePerGas', 0)
+	block = w3.eth.get_block(block_num)
+	base_fee_per_gas = block.get('baseFeePerGas', 0)
 
-		def check_priority_fee(tx):
-			if 'maxPriorityFeePerGas' in tx and 'maxFeePerGas' in tx:
-				return min(tx['maxPriorityFeePerGas'], [tx['maxFeePerGas'] - base_fee_per_gas)
-			else:
-				return tx['gasPrice'] - base_fee_per_gas
-		
-		transactions = block['transactions']
-		priority_fees = [priority_fee(tx) for tx in transactions]
+	def check_priority_fee(tx):
+		if 'maxPriorityFeePerGas' in tx and 'maxFeePerGas' in tx:
+			return min(tx['maxPriorityFeePerGas'], [tx['maxFeePerGas'] - base_fee_per_gas)
+		else:
+			return tx['gasPrice'] - base_fee_per_gas
+	
+	transactions = block['transactions']
+	priority_fees = [priority_fee(tx) for tx in transactions]
 
-		ordered = all(priority_fees[i] >= priority_fees[i+1] for i in range(len(priority_fees) - 1))
+	ordered = all(priority_fees[i] >= priority_fees[i+1] for i in range(len(priority_fees) - 1))
 
-		return ordered
+	return ordered
 
 
 def get_contract_values(contract, admin_address, owner_address):
@@ -90,14 +90,14 @@ def get_contract_values(contract, admin_address, owner_address):
 	check on available contract functions and transactions on the block explorer at
 	https://testnet.bscscan.com/address/0xaA7CAaDA823300D18D3c43f65569a47e78220073
 	"""
-		default_admin_role = int.to_bytes(0, 32, byteorder="big")
+	default_admin_role = int.to_bytes(0, 32, byteorder="big")
 
-		# TODO complete the following lines by performing contract calls
-		onchain_root = contract.functions.merkleRoot().call()  # Get and return the merkleRoot from the provided contract
-		has_role = contract.functions.hasRole(default_admin_role, admin_address).call()  # Check the contract to see if the address "admin_address" has the role "default_admin_role"
-		prime = contract.functions.getPrimeByOwner(owner_address).call()  # Call the contract to get the prime owned by "owner_address"
+	# TODO complete the following lines by performing contract calls
+	onchain_root = contract.functions.merkleRoot().call()  # Get and return the merkleRoot from the provided contract
+	has_role = contract.functions.hasRole(default_admin_role, admin_address).call()  # Check the contract to see if the address "admin_address" has the role "default_admin_role"
+	prime = contract.functions.getPrimeByOwner(owner_address).call()  # Call the contract to get the prime owned by "owner_address"
 
-		return onchain_root, has_role, prime
+	return onchain_root, has_role, prime
 
 
 """
