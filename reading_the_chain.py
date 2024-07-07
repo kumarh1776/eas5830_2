@@ -41,43 +41,38 @@ def connect_with_middleware(contract_json):
 
     return w3, contract
 
-
 def is_ordered_block(w3, block_num):
-	"""
-	Takes a block number
-	Returns a boolean that tells whether all the transactions in the block are ordered by priority fee
+    """
+    Takes a block number
+    Returns a boolean that tells whether all the transactions in the block are ordered by priority fee
 
-	Before EIP-1559, a block is ordered if and only if all transactions are sorted in decreasing order of the gasPrice field
+    Before EIP-1559, a block is ordered if and only if all transactions are sorted in decreasing order of the gasPrice field
 
-	After EIP-1559, there are two types of transactions
-		*Type 0* The priority fee is tx.gasPrice - block.baseFeePerGas
-		*Type 2* The priority fee is min( tx.maxPriorityFeePerGas, tx.maxFeePerGas - block.baseFeePerGas )
+    After EIP-1559, there are two types of transactions
+        *Type 0* The priority fee is tx.gasPrice - block.baseFeePerGas
+        *Type 2* The priority fee is min( tx.maxPriorityFeePerGas, tx.maxFeePerGas - block.baseFeePerGas )
 
-	Conveniently, most type 2 transactions set the gasPrice field to be min( tx.maxPriorityFeePerGas + block.baseFeePerGas, tx.maxFeePerGas )
-	"""
+    Conveniently, most type 2 transactions set the gasPrice field to be min( tx.maxPriorityFeePerGas + block.baseFeePerGas, tx.maxFeePerGas )
+    """
 
+	  # TODO YOUR CODE HERE
 
-	# TODO YOUR CODE HERE
-
-    block = w3.eth.get_block(block_num)
+    block = w3.eth.get_block(block_num, full_transactions=True)
     base_fee_per_gas = block.get('baseFeePerGas', 0)
 
     def check_priority_fee(tx):
-      if 'maxPriorityFeePerGas' in tx and 'maxFeePerGas' in tx:
-        return min(tx['maxPriorityFeePerGas'], tx['maxFeePerGas'] - base_fee_per_gas)
-      else:
-        return tx['gasPrice'] - base_fee_per_gas
+        if 'maxPriorityFeePerGas' in tx and 'maxFeePerGas' in tx:
+            return min(tx['maxPriorityFeePerGas'], tx['maxFeePerGas'] - base_fee_per_gas)
+        else:
+            return tx['gasPrice'] - base_fee_per_gas
 
     transactions = block['transactions']
     priority_fees = []
 
+    for tx in transactions:
+        priority_fees.append(check_priority_fee(tx))
 
-
-    for tx_hash in transactions:
-      tx = w3.eth.get_transaction(tx_hash)
-      priority_fees.append(check_priority_fee(tx))
-
-    ordered = all(priority_fees[i] >= priority_fees[i+1] for i in range(len(priority_fees) - 1))
+    ordered = all(priority_fees[i] >= priority_fees[i + 1] for i in range(len(priority_fees) - 1))
 
     return ordered
 
