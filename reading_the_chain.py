@@ -64,7 +64,7 @@ def is_ordered_block(w3, block_num):
 
 	def check_priority_fee(tx):
 		if 'maxPriorityFeePerGas' in tx and 'maxFeePerGas' in tx:
-			return min(tx['maxPriorityFeePerGas'], [tx['maxFeePerGas'] - base_fee_per_gas)
+			return min(tx['maxPriorityFeePerGas'], tx['maxFeePerGas'] - base_fee_per_gas)
 		else:
 			return tx['gasPrice'] - base_fee_per_gas
 	
